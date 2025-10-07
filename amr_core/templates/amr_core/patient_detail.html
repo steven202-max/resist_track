@@ -1,0 +1,190 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}{{ patient.name }} - Patient Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Patient Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-heart"></i> {{ patient.name }}
+                        </h4>
+                        <div class="btn-group">
+                            <a href="{% url 'prescribe_antibiotic' %}?patient={{ patient.id }}" class="btn btn-light btn-sm">
+                                <i class="bi bi-prescription"></i> Prescribe
+                            </a>
+                            <a href="{% url 'add_resistance_record' %}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-exclamation-triangle"></i> Add Resistance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Age:</strong> {{ patient.age }} years
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Gender:</strong> {{ patient.get_gender_display }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Phone:</strong> {{ patient.phone|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Email:</strong> {{ patient.email|default:"Not provided" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Information -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clipboard-pulse"></i> Medical History
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if patient.medical_history %}
+                                {{ patient.medical_history|linebreaks }}
+                            {% else %}
+                                <p class="text-muted">No medical history recorded.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-exclamation-triangle"></i> Allergies
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if patient.allergies %}
+                                <div class="alert alert-warning">
+                                    {{ patient.allergies|linebreaks }}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No known allergies.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resistance Records -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-exclamation"></i> Resistance Records
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if resistance_records %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Antibiotic</th>
+                                        <th>Result</th>
+                                        <th>Test Date</th>
+                                        <th>Method</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in resistance_records %}
+                                    <tr>
+                                        <td>{{ record.antibiotic.name }}</td>
+                                        <td>
+                                            {% if record.result == 'resistant' %}
+                                                <span class="badge bg-danger">Resistant</span>
+                                            {% elif record.result == 'sensitive' %}
+                                                <span class="badge bg-success">Sensitive</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Intermediate</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.test_date }}</td>
+                                        <td>{{ record.test_method|default:"Not specified" }}</td>
+                                        <td>{{ record.notes|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No resistance records found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Prescriptions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-prescription"></i> Prescription History
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if prescriptions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Prescription ID</th>
+                                        <th>Antibiotic</th>
+                                        <th>Diagnosis</th>
+                                        <th>Dosage</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Resistance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in prescriptions %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ prescription.id }}</span>
+                                        </td>
+                                        <td>{{ prescription.antibiotic.name }}</td>
+                                        <td>{{ prescription.diagnosis }}</td>
+                                        <td>{{ prescription.dosage }} {{ prescription.frequency }}</td>
+                                        <td>
+                                            {% if prescription.status == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% elif prescription.status == 'completed' %}
+                                                <span class="badge bg-info">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ prescription.date_prescribed|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if prescription.is_patient_resistant %}
+                                                <span class="badge bg-danger">Resistant</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Safe</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No prescriptions found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

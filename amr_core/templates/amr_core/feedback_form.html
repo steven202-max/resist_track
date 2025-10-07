@@ -1,0 +1,162 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Provide Feedback - AMR Tracking System{% endblock %}
+{% block page_title %}Treatment Feedback{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-hospital-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-chat-dots"></i> Treatment Feedback
+                </h4>
+                <p class="mb-0 mt-2 opacity-75">Your feedback helps improve patient care</p>
+            </div>
+            <div class="card-body p-4">
+                <!-- Patient and Prescription Info -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-person"></i> Patient Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Name:</strong> {{ patient.name }}</p>
+                                <p class="mb-1"><strong>Age:</strong> {{ patient.age }} years</p>
+                                <p class="mb-0"><strong>Gender:</strong> {{ patient.get_gender_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-hospital-primary">
+                            <div class="card-header bg-hospital-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-prescription"></i> Prescription Details
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Antibiotic:</strong> {{ prescription.antibiotic.name }}</p>
+                                <p class="mb-1"><strong>Diagnosis:</strong> {{ prescription.diagnosis }}</p>
+                                <p class="mb-1"><strong>Dosage:</strong> {{ prescription.dosage }} {{ prescription.frequency }}</p>
+                                <p class="mb-1"><strong>Duration:</strong> {{ prescription.duration }}</p>
+                                <p class="mb-0"><strong>Prescribed:</strong> {{ prescription.date_prescribed|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if is_update %}
+                <div class="alert alert-warning" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="alert-heading">Update Feedback</h6>
+                            <p class="mb-0">You have already provided feedback for this prescription. You can update your feedback below.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Feedback Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="patient_id" value="{{ patient.id }}">
+                    <input type="hidden" name="prescription_id" value="{{ prescription.id }}">
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.feedback.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-list-check text-hospital-primary"></i> How would you describe your treatment outcome?
+                        </label>
+                        {{ form.feedback }}
+                        <div class="form-text">Please select the option that best describes your experience.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.details.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-chat-text text-hospital-primary"></i> Additional Details
+                        </label>
+                        {{ form.details }}
+                        <div class="form-text">Please provide any additional details about your treatment experience.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.severity_rating.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-speedometer text-hospital-primary"></i> Severity Rating (Optional)
+                        </label>
+                        {{ form.severity_rating }}
+                        <div class="form-text">Rate the severity of your condition on a scale of 1-10 (1 = mild, 10 = severe).</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-3">
+                        <a href="{% url 'patient_feedback' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-hospital-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Feedback Guidelines -->
+        <div class="card mt-4">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-lightbulb"></i> Feedback Guidelines
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-check-circle text-success"></i> Recovered</h6>
+                        <p class="text-muted small">
+                            Select this if you have completely recovered from your condition and no longer experience symptoms.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-arrow-clockwise text-warning"></i> No Improvement</h6>
+                        <p class="text-muted small">
+                            Select this if your condition has remained the same or has not shown significant improvement.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-exclamation-triangle text-danger"></i> Side Effects</h6>
+                        <p class="text-muted small">
+                            Select this if you experienced any unwanted side effects from the medication.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-arrow-up-circle text-info"></i> Partial Recovery</h6>
+                        <p class="text-muted small">
+                            Select this if you have experienced some improvement but are not fully recovered.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-arrow-down-circle text-danger"></i> Condition Worsening</h6>
+                        <p class="text-muted small">
+                            Select this if your condition has gotten worse since starting the treatment.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info p-2">
+                            <small>
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Important:</strong> If your condition is worsening or you experience severe side effects, 
+                                please contact your doctor immediately.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

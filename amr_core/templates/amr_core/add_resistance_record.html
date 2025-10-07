@@ -1,0 +1,125 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Add Resistance Record - AMR Tracking System{% endblock %}
+{% block page_title %}Add Resistance Record{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-hospital-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Add Resistance Record
+                </h4>
+                <p class="mb-0 mt-2 opacity-75">Record patient resistance to specific antibiotics</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.patient.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-person text-hospital-primary"></i> Select Patient
+                            </label>
+                            {{ form.patient }}
+                            {% if form.patient.errors %}
+                                <div class="text-danger small">{{ form.patient.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.antibiotic.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-capsule text-hospital-primary"></i> Select Antibiotic
+                            </label>
+                            {{ form.antibiotic }}
+                            {% if form.antibiotic.errors %}
+                                <div class="text-danger small">{{ form.antibiotic.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.result.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-shield-exclamation text-danger"></i> Resistance Result
+                            </label>
+                            {{ form.result }}
+                            {% if form.result.errors %}
+                                <div class="text-danger small">{{ form.result.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.test_date.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-calendar text-hospital-primary"></i> Test Date
+                            </label>
+                            {{ form.test_date }}
+                            {% if form.test_date.errors %}
+                                <div class="text-danger small">{{ form.test_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.test_method.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-clipboard-data text-hospital-primary"></i> Test Method
+                            </label>
+                            {{ form.test_method }}
+                            {% if form.test_method.errors %}
+                                <div class="text-danger small">{{ form.test_method.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-sticky text-hospital-primary"></i> Additional Notes
+                        </label>
+                        {{ form.notes }}
+                        <div class="form-text">Include any additional details about the resistance test.</div>
+                        {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-3">
+                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-hospital-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Add Resistance Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Information Guidelines -->
+        <div class="card mt-4">
+            <div class="card-header bg-hospital-light-blue">
+                <h6 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-info-circle"></i> Resistance Testing Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-shield-exclamation text-danger"></i> Resistance Levels</h6>
+                        <ul class="small text-muted">
+                            <li><strong>Resistant:</strong> Organism is not inhibited by the antibiotic</li>
+                            <li><strong>Sensitive:</strong> Organism is inhibited by the antibiotic</li>
+                            <li><strong>Intermediate:</strong> Organism shows moderate resistance</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-clipboard-data text-hospital-primary"></i> Test Methods</h6>
+                        <ul class="small text-muted">
+                            <li><strong>MIC:</strong> Minimum Inhibitory Concentration</li>
+                            <li><strong>Disk Diffusion:</strong> Kirby-Bauer method</li>
+                            <li><strong>E-test:</strong> Gradient diffusion method</li>
+                            <li><strong>Automated:</strong> VITEK, Phoenix systems</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

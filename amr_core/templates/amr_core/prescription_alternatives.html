@@ -1,0 +1,113 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Alternative Antibiotics - AMR Tracking System{% endblock %}
+{% block page_title %}Alternative Antibiotics{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Alert Section -->
+        <div class="alert alert-hospital-danger" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill fs-2 me-3"></i>
+                <div>
+                    <h4 class="alert-heading">⚠️ Resistance Alert</h4>
+                    <p class="mb-0">
+                        <strong>{{ prescription.patient.name }}</strong> has resistance to 
+                        <strong>{{ prescription.antibiotic.name }}</strong>. Please select an alternative antibiotic.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Prescription Info -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-prescription"></i> Current Prescription Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Patient:</strong> {{ prescription.patient.name }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Antibiotic:</strong> <span class="badge bg-danger">{{ prescription.antibiotic.name }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Diagnosis:</strong> {{ prescription.diagnosis }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Date:</strong> {{ prescription.date_prescribed|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alternative Antibiotics -->
+        <div class="card">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-repeat"></i> Suggested Alternative Antibiotics
+                </h5>
+                <p class="mb-0 mt-2 opacity-75">Select a suitable alternative for {{ prescription.patient.name }}</p>
+            </div>
+            <div class="card-body">
+                {% if alternatives %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for alternative in alternatives %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card border-info h-100">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="alternative_antibiotic" 
+                                                   id="alt_{{ alternative.id }}" value="{{ alternative.id }}" required>
+                                            <label class="form-check-label w-100" for="alt_{{ alternative.id }}">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="card-title text-info mb-0">{{ alternative.name }}</h6>
+                                                    <span class="badge bg-secondary">{{ alternative.class_type }}</span>
+                                                </div>
+                                                <p class="small text-muted mb-2">
+                                                    <strong>Targets:</strong> {{ alternative.bacteria_targeted }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="small text-muted">Effectiveness Rate</span>
+                                                    <span class="badge bg-info">{{ alternative.get_effectiveness_rate }}%</span>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-hospital-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Update Prescription
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="text-center py-4">
+                        <div class="bg-hospital-light-blue rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-exclamation-triangle text-hospital-primary display-4"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">No Alternatives Found</h5>
+                        <p class="text-muted mb-4">
+                            No suitable alternative antibiotics found for this patient. 
+                            Please consult with a specialist or consider different treatment options.
+                        </p>
+                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

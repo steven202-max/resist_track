@@ -1,0 +1,89 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Doctor Login - AMR Tracking System{% endblock %}
+{% block page_title %}Doctor Authentication{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-hospital-primary text-white text-center py-4">
+                <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-shield-check text-hospital-primary display-4"></i>
+                </div>
+                <h4 class="mb-0">Doctor Login</h4>
+                <p class="mb-0 mt-2 opacity-75">Access your AMR tracking dashboard</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-person text-hospital-primary"></i> Username
+                        </label>
+                        {{ form.username }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-lock text-hospital-primary"></i> Password
+                        </label>
+                        {{ form.password }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-hospital-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center bg-light">
+                <p class="mb-0">
+                    Don't have an account? 
+                    <a href="{% url 'doctor_register' %}" class="text-hospital-primary text-decoration-none fw-semibold">Register here</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Demo Information -->
+        <div class="card mt-4 border-hospital-primary">
+            <div class="card-header bg-hospital-light-blue">
+                <h6 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-info-circle"></i> Demo Access
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-person-badge text-hospital-primary"></i> Demo Doctor Account</h6>
+                        <p class="mb-2">
+                            <strong>Username:</strong> demo_doctor<br>
+                            <strong>Password:</strong> demo123
+                        </p>
+                        <p class="small text-muted">
+                            Use these credentials to explore all system features and functionality.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-lightbulb text-warning"></i> Getting Started</h6>
+                        <ul class="small text-muted">
+                            <li>Login with demo credentials</li>
+                            <li>Explore the doctor dashboard</li>
+                            <li>Try prescribing antibiotics</li>
+                            <li>Check patient resistance records</li>
+                            <li>View analytics and reports</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'doctor_login' %}" class="btn btn-hospital-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Access Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

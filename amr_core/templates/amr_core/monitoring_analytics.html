@@ -1,0 +1,454 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Monitoring Analytics - AMR Tracking System{% endblock %}
+{% block page_title %}Advanced Monitoring Analytics{% endblock %}
+
+{% block content %}
+<!-- Analytics Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1"></i>
+                <h4 class="mt-2">{{ analytics_data.total_patients_monitored }}</h4>
+                <p class="mb-0">Patients Monitored</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle fs-1"></i>
+                <h4 class="mt-2">{{ analytics_data.patients_on_track }}</h4>
+                <p class="mb-0">On Track</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <i class="bi bi-exclamation-triangle fs-1"></i>
+                <h4 class="mt-2">{{ analytics_data.patients_at_risk }}</h4>
+                <p class="mb-0">At Risk</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up fs-1"></i>
+                <h4 class="mt-2">{{ analytics_data.average_effectiveness|floatformat:1 }}/10</h4>
+                <p class="mb-0">Avg Effectiveness</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart"></i> Treatment Performance Metrics
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-pie-chart"></i> Treatment Status Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Monitoring Dashboard -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-hospital-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-table"></i> Patient Monitoring Dashboard
+                </h5>
+                <span class="badge bg-light text-dark">{{ monitoring_dashboards.count }} Active Treatments</span>
+            </div>
+            <div class="card-body">
+                {% if monitoring_dashboards %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Antibiotic</th>
+                                <th>Status</th>
+                                <th>Effectiveness</th>
+                                <th>Adherence</th>
+                                <th>Side Effects</th>
+                                <th>Risk Score</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dashboard in monitoring_dashboards %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                            <span class="text-white fw-bold small">{{ dashboard.patient.id }}</span>
+                                        </div>
+                                        <div>
+                                            <strong>{{ dashboard.patient.name }}</strong>
+                                            <br><small class="text-muted">ID: {{ dashboard.patient.id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ dashboard.prescription.antibiotic.name }}</strong>
+                                    <br><small class="text-muted">{{ dashboard.prescription.antibiotic.class_type }}</small>
+                                </td>
+                                <td>
+                                    {% if dashboard.treatment_status == 'on_track' %}
+                                        <span class="badge bg-success">On Track</span>
+                                    {% elif dashboard.treatment_status == 'monitoring' %}
+                                        <span class="badge bg-warning">Monitoring</span>
+                                    {% elif dashboard.treatment_status == 'concern' %}
+                                        <span class="badge bg-danger">Concern</span>
+                                    {% elif dashboard.treatment_status == 'critical' %}
+                                        <span class="badge bg-dark">Critical</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ dashboard.get_treatment_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if dashboard.effectiveness_score >= 8 %}bg-success
+                                            {% elif dashboard.effectiveness_score >= 6 %}bg-info
+                                            {% elif dashboard.effectiveness_score >= 4 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                            style="width: {{ dashboard.effectiveness_score|floatformat:0 }}0%">
+                                            {{ dashboard.effectiveness_score|floatformat:1 }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if dashboard.adherence_score >= 8 %}bg-success
+                                            {% elif dashboard.adherence_score >= 6 %}bg-info
+                                            {% elif dashboard.adherence_score >= 4 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                            style="width: {{ dashboard.adherence_score|floatformat:0 }}0%">
+                                            {{ dashboard.adherence_score|floatformat:1 }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if dashboard.side_effects_score <= 3 %}bg-success
+                                            {% elif dashboard.side_effects_score <= 6 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                            style="width: {{ dashboard.side_effects_score|floatformat:0 }}0%">
+                                            {{ dashboard.side_effects_score|floatformat:1 }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if dashboard.get_overall_risk_score <= 3 %}bg-success
+                                        {% elif dashboard.get_overall_risk_score <= 6 %}bg-warning
+                                        {% else %}bg-danger{% endif %} fs-6">
+                                        {{ dashboard.get_overall_risk_score }}/10
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ dashboard.updated_at|date:"M d, Y" }}
+                                        <br>{{ dashboard.updated_at|time:"H:i" }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group-vertical btn-group-sm">
+                                        <a href="{% url 'patient_dashboard' dashboard.patient.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i> Dashboard
+                                        </a>
+                                        <a href="{% url 'patient_assessment_with_prescription' dashboard.patient.id dashboard.prescription.id %}" class="btn btn-outline-info btn-sm">
+                                            <i class="bi bi-clipboard-pulse"></i> Assess
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-graph-up text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-3">No Monitoring Data</h5>
+                    <p class="text-muted">No patient monitoring dashboards found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Antibiotic Effectiveness Analysis -->
+{% if antibiotic_effectiveness %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pill"></i> Antibiotic Effectiveness Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for antibiotic, data in antibiotic_effectiveness.items %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-left-primary">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ antibiotic }}</h6>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="text-primary fw-bold">{{ data.total }}</div>
+                                        <small class="text-muted">Total</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-success fw-bold">{{ data.effective }}</div>
+                                        <small class="text-muted">Effective</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-warning fw-bold">{{ data.side_effects }}</div>
+                                        <small class="text-muted">Side Effects</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {% widthratio data.effective data.total 100 %}%"></div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {% widthratio data.effective data.total 100 %}% Effectiveness Rate
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Assessments -->
+{% if recent_assessments %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-clipboard-data"></i> Recent Patient Assessments
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Antibiotic</th>
+                                <th>Assessment Type</th>
+                                <th>Symptom Improvement</th>
+                                <th>Adherence</th>
+                                <th>Side Effects</th>
+                                <th>Conducted By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assessment in recent_assessments %}
+                            <tr>
+                                <td>{{ assessment.assessment_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'patient_dashboard' assessment.patient.id %}" class="text-decoration-none">
+                                        {{ assessment.patient.name }}
+                                    </a>
+                                    <br><small class="text-muted">ID: {{ assessment.patient.id }}</small>
+                                </td>
+                                <td>{{ assessment.prescription.antibiotic.name }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ assessment.get_assessment_type_display }}</span>
+                                </td>
+                                <td>
+                                    {% if assessment.symptom_improvement == 'significant' %}
+                                        <span class="badge bg-success">Significant</span>
+                                    {% elif assessment.symptom_improvement == 'moderate' %}
+                                        <span class="badge bg-info">Moderate</span>
+                                    {% elif assessment.symptom_improvement == 'minimal' %}
+                                        <span class="badge bg-warning">Minimal</span>
+                                    {% elif assessment.symptom_improvement == 'no_change' %}
+                                        <span class="badge bg-secondary">No Change</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Worsening</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assessment.medication_adherence == 'excellent' %}
+                                        <span class="badge bg-success">Excellent</span>
+                                    {% elif assessment.medication_adherence == 'good' %}
+                                        <span class="badge bg-info">Good</span>
+                                    {% elif assessment.medication_adherence == 'fair' %}
+                                        <span class="badge bg-warning">Fair</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Poor</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assessment.side_effects_experienced %}
+                                        <span class="badge bg-warning">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-success">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ assessment.conducted_by }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h6>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'medicine_alerts' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-bell"></i> View Alerts
+                    </a>
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-hospital-primary">
+                        <i class="bi bi-speedometer2"></i> Doctor Dashboard
+                    </a>
+                    <a href="{% url 'reports' %}" class="btn btn-outline-info">
+                        <i class="bi bi-bar-chart"></i> Reports
+                    </a>
+                    <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-people"></i> All Patients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Performance Chart
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Effectiveness', 'Adherence', 'Side Effects (Lower is Better)'],
+        datasets: [{
+            label: 'Average Score',
+            data: [
+                {{ analytics_data.average_effectiveness|floatformat:1 }},
+                {{ analytics_data.average_adherence|floatformat:1 }},
+                {{ analytics_data.average_side_effects|floatformat:1 }}
+            ],
+            backgroundColor: [
+                'rgba(40, 167, 69, 0.8)',
+                'rgba(23, 162, 184, 0.8)',
+                'rgba(255, 193, 7, 0.8)'
+            ],
+            borderColor: [
+                'rgba(40, 167, 69, 1)',
+                'rgba(23, 162, 184, 1)',
+                'rgba(255, 193, 7, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 10,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Status Distribution Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['On Track', 'At Risk', 'Critical'],
+        datasets: [{
+            data: [
+                {{ analytics_data.patients_on_track }},
+                {{ analytics_data.patients_at_risk }},
+                0
+            ],
+            backgroundColor: [
+                'rgba(40, 167, 69, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(220, 53, 69, 0.8)'
+            ],
+            borderColor: [
+                'rgba(40, 167, 69, 1)',
+                'rgba(255, 193, 7, 1)',
+                'rgba(220, 53, 69, 1)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

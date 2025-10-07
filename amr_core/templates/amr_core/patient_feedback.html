@@ -1,0 +1,178 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Patient Feedback - AMR Tracking System{% endblock %}
+{% block page_title %}Patient Feedback{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-hospital-info text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-chat-dots"></i> Patient Feedback Form
+                </h4>
+                <p class="mb-0 mt-2 opacity-75">Help us improve treatment outcomes</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Important</h6>
+                            <p class="mb-0">Please enter your Patient ID and Prescription ID to provide feedback on your treatment. These IDs should have been provided by your doctor.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="get" action="{% url 'feedback_form' %}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="patient_id" class="form-label fw-semibold">
+                                <i class="bi bi-person-badge text-hospital-primary"></i> Patient ID
+                            </label>
+                            <input type="number" class="form-control form-control-lg" id="patient_id" name="patient_id" 
+                                   placeholder="Enter your Patient ID" required>
+                            <div class="form-text">Your unique patient identifier</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="prescription_id" class="form-label fw-semibold">
+                                <i class="bi bi-prescription text-hospital-primary"></i> Prescription ID
+                            </label>
+                            <input type="number" class="form-control form-control-lg" id="prescription_id" name="prescription_id" 
+                                   placeholder="Enter your Prescription ID" required>
+                            <div class="form-text">Your prescription identifier</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-hospital-primary btn-lg">
+                            <i class="bi bi-arrow-right"></i> Continue to Feedback Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-question-circle"></i> How to Get Your IDs
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-badge text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-hospital-primary">Patient ID</h6>
+                                <p class="text-muted small mb-0">
+                                    Your Patient ID is a unique number assigned when you were first registered in our system. 
+                                    It can be found on your medical records or prescription documents.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px;">
+                                <i class="bi bi-prescription text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-success">Prescription ID</h6>
+                                <p class="text-muted small mb-0">
+                                    Your Prescription ID is generated when a prescription is created. 
+                                    It's usually printed on your prescription slip or mentioned by your doctor.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                        <div>
+                            <h6 class="alert-heading">Can't find your IDs?</h6>
+                            <p class="mb-0">Please contact your doctor or the medical facility where you received your prescription. They will be able to provide you with the correct IDs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Options Preview -->
+        <div class="card mt-4">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-list-check"></i> Feedback Options
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                                </div>
+                                <h6 class="text-success">Recovered</h6>
+                                <small class="text-muted">I have fully recovered from my condition</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-warning h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-arrow-clockwise text-white fs-4"></i>
+                                </div>
+                                <h6 class="text-warning">No Improvement</h6>
+                                <small class="text-muted">My condition has not improved</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-danger h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-exclamation-triangle-fill text-white fs-4"></i>
+                                </div>
+                                <h6 class="text-danger">Side Effects</h6>
+                                <small class="text-muted">I experienced side effects</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-arrow-up-circle-fill text-white fs-4"></i>
+                                </div>
+                                <h6 class="text-info">Partial Recovery</h6>
+                                <small class="text-muted">I have partially recovered</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-danger h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-arrow-down-circle-fill text-white fs-4"></i>
+                                </div>
+                                <h6 class="text-danger">Condition Worsening</h6>
+                                <small class="text-muted">My condition has gotten worse</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

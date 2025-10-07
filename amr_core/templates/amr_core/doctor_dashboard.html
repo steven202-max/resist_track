@@ -1,0 +1,272 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Doctor Dashboard - AMR Tracking System{% endblock %}
+{% block page_title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center">
+            <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-person-heart text-white fs-4"></i>
+            </div>
+            <div>
+                <h1 class="h2 mb-1 text-hospital-primary">Welcome, Dr. {{ doctor_name }}</h1>
+                <p class="text-muted mb-0">Monitor and manage antimicrobial resistance effectively</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+        <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-hospital-primary btn-lg">
+            <i class="bi bi-prescription"></i> New Prescription
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-prescription text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h4 class="mb-0 text-hospital-primary">{{ total_prescriptions }}</h4>
+                    <p class="text-muted mb-0 small">Total Prescriptions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card success">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-hospital-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-check-circle text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h4 class="mb-0 text-success">{{ active_prescriptions }}</h4>
+                    <p class="text-muted mb-0 small">Active Prescriptions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card danger">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div class="bg-hospital-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-exclamation-triangle text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h4 class="mb-0 text-danger">{{ resistance_alerts|length }}</h4>
+                    <p class="text-muted mb-0 small">Resistance Alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resistance Alerts -->
+{% if resistance_alerts %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="alert alert-hospital-danger" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">⚠️ Resistance Alerts</h5>
+                    <p class="mb-0">Immediate attention required for the following resistant prescriptions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-danger">
+            <div class="card-body">
+                {% for prescription in resistance_alerts %}
+                <div class="alert alert-warning d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="bi bi-exclamation-triangle text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ prescription.patient.name }}</h6>
+                            <p class="mb-0 text-muted">
+                                <strong>{{ prescription.antibiotic.name }}</strong> - 
+                                {{ prescription.diagnosis|truncatechars:50 }}
+                                <br>
+                                <small>Prescribed on {{ prescription.date_prescribed|date:"M d, Y" }}</small>
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{% url 'prescription_alternatives' prescription.id %}" class="btn btn-warning">
+                        <i class="bi bi-arrow-repeat"></i> View Alternatives
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'add_patient' %}" class="btn btn-outline-hospital-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="bi bi-person-plus display-5 mb-2"></i>
+                            <span class="fw-semibold">Add Patient</span>
+                            <small class="text-muted mt-1">Register new patient</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'patient_list' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="bi bi-people display-5 mb-2"></i>
+                            <span class="fw-semibold">View Patients</span>
+                            <small class="text-muted mt-1">Browse all patients</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'add_resistance_record' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="bi bi-exclamation-triangle display-5 mb-2"></i>
+                            <span class="fw-semibold">Add Resistance</span>
+                            <small class="text-muted mt-1">Record resistance data</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'reports' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="bi bi-graph-up display-5 mb-2"></i>
+                            <span class="fw-semibold">View Reports</span>
+                            <small class="text-muted mt-1">Analytics dashboard</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Prescriptions -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-clock-history"></i> Recent Prescriptions
+                </h5>
+                <a href="{% url 'reports' %}" class="btn btn-sm btn-outline-hospital-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_prescriptions %}
+                    <div class="table-responsive">
+                        <table class="table table-hospital">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Antibiotic</th>
+                                    <th>Diagnosis</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Resistance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prescription in recent_prescriptions %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                                <i class="bi bi-person text-white small"></i>
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'patient_detail' prescription.patient.id %}" class="text-decoration-none fw-semibold">
+                                                    {{ prescription.patient.name }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ prescription.antibiotic.name }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ prescription.diagnosis }}">
+                                            {{ prescription.diagnosis }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if prescription.status == 'active' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-play-circle"></i> Active
+                                            </span>
+                                        {% elif prescription.status == 'completed' %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-check-circle"></i> Completed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x-circle"></i> Cancelled
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ prescription.date_prescribed|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if prescription.is_patient_resistant %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-exclamation-triangle"></i> Resistant
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Safe
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'patient_detail' prescription.patient.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            {% if prescription.is_patient_resistant %}
+                                                <a href="{% url 'prescription_alternatives' prescription.id %}" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="bg-hospital-light-blue rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-prescription text-hospital-primary display-4"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">No prescriptions yet</h5>
+                        <p class="text-muted mb-4">Start by prescribing an antibiotic to a patient to begin tracking resistance patterns.</p>
+                        <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-hospital-primary">
+                            <i class="bi bi-plus-circle"></i> Create First Prescription
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

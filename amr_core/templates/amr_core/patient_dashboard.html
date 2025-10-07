@@ -1,0 +1,365 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}{{ patient.name }} - Patient Dashboard - AMR Tracking System{% endblock %}
+{% block page_title %}{{ patient.name }} - Patient Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Patient Information Card -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle"></i> Patient Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="bg-hospital-light-blue rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-person text-hospital-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Patient ID:</strong></td>
+                        <td><span class="badge bg-primary">{{ patient.id }}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{{ patient.name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Age:</strong></td>
+                        <td>{{ patient.age }} years</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gender:</strong></td>
+                        <td>{{ patient.get_gender_display }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phone:</strong></td>
+                        <td>{{ patient.phone }}</td>
+                    </tr>
+                    {% if patient.allergies %}
+                    <tr>
+                        <td><strong>Allergies:</strong></td>
+                        <td><span class="text-danger">{{ patient.allergies }}</span></td>
+                    </tr>
+                    {% endif %}
+                </table>
+                
+                <div class="text-center">
+                    <a href="{% url 'patient_detail' patient.id %}" class="btn btn-outline-hospital-primary btn-sm">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Prescriptions and Monitoring -->
+    <div class="col-lg-8">
+        <!-- Active Prescriptions -->
+        {% if active_prescriptions %}
+        <div class="card mb-4">
+            <div class="card-header bg-hospital-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-prescription"></i> Active Treatments
+                </h5>
+                <span class="badge bg-light text-dark">{{ active_prescriptions.count }} Active</span>
+            </div>
+            <div class="card-body">
+                {% for prescription in active_prescriptions %}
+                <div class="card border-left-primary mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-1">{{ prescription.antibiotic.name }}</h6>
+                                <p class="text-muted mb-1">{{ prescription.diagnosis }}</p>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> Started: {{ prescription.date_prescribed|date:"M d, Y" }}
+                                    | <i class="bi bi-clock"></i> {{ prescription.dosage }} {{ prescription.frequency }}
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="btn-group-vertical btn-group-sm">
+                                    <a href="{% url 'patient_assessment_with_prescription' patient.id prescription.id %}" class="btn btn-hospital-primary btn-sm">
+                                        <i class="bi bi-clipboard-pulse"></i> Assess Patient
+                                    </a>
+                                    <a href="{% url 'prescription_success' prescription.id %}" class="btn btn-outline-hospital-primary btn-sm">
+                                        <i class="bi bi-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <i class="bi bi-prescription text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No Active Treatments</h5>
+                <p class="text-muted">This patient currently has no active prescriptions.</p>
+                <a href="{% url 'prescribe_antibiotic' %}?patient={{ patient.id }}" class="btn btn-hospital-primary">
+                    <i class="bi bi-plus-circle"></i> Create Prescription
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Monitoring Dashboards -->
+        {% if monitoring_dashboards %}
+        <div class="card mb-4">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up"></i> Treatment Monitoring
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for dashboard in monitoring_dashboards %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>{{ dashboard.prescription.antibiotic.name }}</h6>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <div class="text-success fw-bold">{{ dashboard.effectiveness_score }}/10</div>
+                                    <small class="text-muted">Effectiveness</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <div class="text-primary fw-bold">{{ dashboard.adherence_score }}/10</div>
+                                    <small class="text-muted">Adherence</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <div class="text-warning fw-bold">{{ dashboard.side_effects_score }}/10</div>
+                                    <small class="text-muted">Side Effects</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-end h-100">
+                            {% if dashboard.treatment_status == 'on_track' %}
+                                <span class="badge bg-success fs-6">On Track</span>
+                            {% elif dashboard.treatment_status == 'monitoring' %}
+                                <span class="badge bg-warning fs-6">Monitoring</span>
+                            {% elif dashboard.treatment_status == 'concern' %}
+                                <span class="badge bg-danger fs-6">Concern</span>
+                            {% elif dashboard.treatment_status == 'critical' %}
+                                <span class="badge bg-dark fs-6">Critical</span>
+                            {% else %}
+                                <span class="badge bg-info fs-6">{{ dashboard.get_treatment_status_display }}</span>
+                            {% endif %}
+                        </div>
+                        {% if dashboard.next_assessment_due %}
+                        <div class="text-end mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar-check"></i> Next Assessment: {{ dashboard.next_assessment_due }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if not forloop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Active Alerts -->
+{% if active_alerts %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Active Alerts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for alert in active_alerts %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="alert-heading">
+                                {% if alert.priority == 'critical' %}
+                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                {% elif alert.priority == 'high' %}
+                                    <i class="bi bi-exclamation-triangle text-danger"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle text-info"></i>
+                                {% endif %}
+                                {{ alert.title }}
+                            </h6>
+                            <p class="mb-1">{{ alert.description }}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> {{ alert.created_date|date:"M d, Y H:i" }}
+                                | <i class="bi bi-tag"></i> {{ alert.get_alert_type_display }}
+                                | <i class="bi bi-flag"></i> {{ alert.get_priority_display }}
+                            </small>
+                        </div>
+                        <div>
+                            <a href="{% url 'alert_detail' alert.id %}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Assessments -->
+{% if recent_assessments %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-clipboard-data"></i> Recent Assessments
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Symptom Improvement</th>
+                                <th>Adherence</th>
+                                <th>Side Effects</th>
+                                <th>Conducted By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assessment in recent_assessments %}
+                            <tr>
+                                <td>{{ assessment.assessment_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ assessment.get_assessment_type_display }}</span>
+                                </td>
+                                <td>
+                                    {% if assessment.symptom_improvement == 'significant' %}
+                                        <span class="badge bg-success">Significant</span>
+                                    {% elif assessment.symptom_improvement == 'moderate' %}
+                                        <span class="badge bg-info">Moderate</span>
+                                    {% elif assessment.symptom_improvement == 'minimal' %}
+                                        <span class="badge bg-warning">Minimal</span>
+                                    {% elif assessment.symptom_improvement == 'no_change' %}
+                                        <span class="badge bg-secondary">No Change</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Worsening</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assessment.medication_adherence == 'excellent' %}
+                                        <span class="badge bg-success">Excellent</span>
+                                    {% elif assessment.medication_adherence == 'good' %}
+                                        <span class="badge bg-info">Good</span>
+                                    {% elif assessment.medication_adherence == 'fair' %}
+                                        <span class="badge bg-warning">Fair</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Poor</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assessment.side_effects_experienced %}
+                                        <span class="badge bg-warning">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-success">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ assessment.conducted_by }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Feedback -->
+{% if recent_feedback %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-chat-dots"></i> Recent Patient Feedback
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for feedback in recent_feedback %}
+                <div class="card border-left-info mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="mb-1">{{ feedback.prescription.antibiotic.name }}</h6>
+                                <p class="mb-1">
+                                    <span class="badge {% if feedback.feedback == 'recovered' %}bg-success{% elif feedback.feedback == 'improving' %}bg-info{% elif feedback.feedback == 'no_change' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ feedback.get_feedback_display }}
+                                    </span>
+                                </p>
+                                {% if feedback.comments %}
+                                <p class="text-muted mb-0">{{ feedback.comments }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ feedback.feedback_date|date:"M d, Y" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h6>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'patient_assessment' patient.id %}" class="btn btn-hospital-primary">
+                        <i class="bi bi-clipboard-pulse"></i> New Assessment
+                    </a>
+                    <a href="{% url 'prescribe_antibiotic' %}?patient={{ patient.id }}" class="btn btn-outline-hospital-primary">
+                        <i class="bi bi-prescription"></i> New Prescription
+                    </a>
+                    <a href="{% url 'patient_feedback' %}" class="btn btn-outline-info">
+                        <i class="bi bi-chat-dots"></i> Patient Feedback
+                    </a>
+                    <a href="{% url 'medicine_alerts' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-bell"></i> View All Alerts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

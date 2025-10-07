@@ -1,0 +1,139 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Resistance Records - AMR Tracking System{% endblock %}
+{% block page_title %}Resistance Records{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center">
+            <div class="bg-hospital-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-exclamation-triangle text-white fs-4"></i>
+            </div>
+            <div>
+                <h1 class="h2 mb-1 text-hospital-primary">Resistance Records</h1>
+                <p class="text-muted mb-0">Monitor and manage antimicrobial resistance patterns</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+        <a href="{% url 'add_resistance_record' %}" class="btn btn-hospital-primary">
+            <i class="bi bi-plus-circle"></i> Add Resistance Record
+        </a>
+    </div>
+</div>
+
+<!-- Resistance Records -->
+<div class="card">
+    <div class="card-body">
+        {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hospital">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Antibiotic</th>
+                            <th>Result</th>
+                            <th>Test Date</th>
+                            <th>Method</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-person text-white small"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ record.patient.name }}</strong>
+                                        <br><small class="text-muted">{{ record.patient.age }} years</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ record.antibiotic.name }}</span>
+                                <br><small class="text-muted">{{ record.antibiotic.class_type }}</small>
+                            </td>
+                            <td>
+                                {% if record.result == 'resistant' %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Resistant
+                                    </span>
+                                {% elif record.result == 'sensitive' %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Sensitive
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Intermediate
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.test_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="small">{{ record.test_method|default:"Not specified" }}</span>
+                            </td>
+                            <td>
+                                {% if record.notes %}
+                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ record.notes }}">
+                                        {{ record.notes }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Resistance records pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <div class="bg-hospital-light-blue rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-exclamation-triangle text-hospital-primary display-4"></i>
+                </div>
+                <h4 class="text-muted mb-3">No resistance records found</h4>
+                <p class="text-muted mb-4">Start by adding resistance records for patients to track antimicrobial resistance patterns.</p>
+                <a href="{% url 'add_resistance_record' %}" class="btn btn-hospital-primary">
+                    <i class="bi bi-plus-circle"></i> Add First Record
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

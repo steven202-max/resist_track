@@ -1,0 +1,319 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Patient Assessment - {{ patient.name }} - AMR Tracking System{% endblock %}
+{% block page_title %}Patient Assessment - {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Patient & Prescription Info -->
+        <div class="card mb-4">
+            <div class="card-header bg-hospital-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clipboard-pulse"></i> Assessment Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-person"></i> Patient Details</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <td><strong>Name:</strong></td>
+                                <td>{{ patient.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patient ID:</strong></td>
+                                <td><span class="badge bg-primary">{{ patient.id }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Age:</strong></td>
+                                <td>{{ patient.age }} years</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-prescription"></i> Current Treatment</h6>
+                        {% if prescription %}
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <td><strong>Antibiotic:</strong></td>
+                                <td>{{ prescription.antibiotic.name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Diagnosis:</strong></td>
+                                <td>{{ prescription.diagnosis }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dosage:</strong></td>
+                                <td>{{ prescription.dosage }} {{ prescription.frequency }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Started:</strong></td>
+                                <td>{{ prescription.date_prescribed|date:"M d, Y" }}</td>
+                            </tr>
+                        </table>
+                        {% else %}
+                        <p class="text-muted">No active prescription found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessment Form -->
+        <div class="card">
+            <div class="card-header bg-hospital-light-blue">
+                <h5 class="mb-0 text-hospital-primary">
+                    <i class="bi bi-clipboard-data"></i> Patient Assessment Questionnaire
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Assessment Type -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.assessment_type.id_for_label }}" class="form-label">
+                                <i class="bi bi-tag"></i> Assessment Type
+                            </label>
+                            {{ form.assessment_type }}
+                            {% if form.assessment_type.errors %}
+                                <div class="text-danger">{{ form.assessment_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.next_assessment_due.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar"></i> Next Assessment Due
+                            </label>
+                            {{ form.next_assessment_due }}
+                            {% if form.next_assessment_due.errors %}
+                                <div class="text-danger">{{ form.next_assessment_due.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Symptom Assessment -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-heart-pulse"></i> Symptom Assessment
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="{{ form.symptom_improvement.id_for_label }}" class="form-label">
+                                    How has your condition changed since starting treatment?
+                                </label>
+                                {{ form.symptom_improvement }}
+                                {% if form.symptom_improvement.errors %}
+                                    <div class="text-danger">{{ form.symptom_improvement.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.pain_level.id_for_label }}" class="form-label">
+                                    Pain Level (1-10, if applicable)
+                                </label>
+                                {{ form.pain_level }}
+                                {% if form.pain_level.errors %}
+                                    <div class="text-danger">{{ form.pain_level.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">10 = Severe pain, 1 = No pain</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Medication Adherence -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-pill"></i> Medication Adherence
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="{{ form.medication_adherence.id_for_label }}" class="form-label">
+                                    How well have you been taking your medication as prescribed?
+                                </label>
+                                {{ form.medication_adherence }}
+                                {% if form.medication_adherence.errors %}
+                                    <div class="text-danger">{{ form.medication_adherence.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Side Effects -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-exclamation-triangle"></i> Side Effects
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    {{ form.side_effects_experienced }}
+                                    <label class="form-check-label" for="{{ form.side_effects_experienced.id_for_label }}">
+                                        Have you experienced any side effects from the medication?
+                                    </label>
+                                </div>
+                                {% if form.side_effects_experienced.errors %}
+                                    <div class="text-danger">{{ form.side_effects_experienced.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.side_effects_details.id_for_label }}" class="form-label">
+                                    Please describe any side effects you have experienced:
+                                </label>
+                                {{ form.side_effects_details }}
+                                {% if form.side_effects_details.errors %}
+                                    <div class="text-danger">{{ form.side_effects_details.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Quality of Life Indicators -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-heart"></i> Quality of Life Indicators
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="{{ form.energy_level.id_for_label }}" class="form-label">
+                                    Energy Level
+                                </label>
+                                {{ form.energy_level }}
+                                {% if form.energy_level.errors %}
+                                    <div class="text-danger">{{ form.energy_level.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.appetite_changes.id_for_label }}" class="form-label">
+                                    Appetite Changes
+                                </label>
+                                {{ form.appetite_changes }}
+                                {% if form.appetite_changes.errors %}
+                                    <div class="text-danger">{{ form.appetite_changes.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.sleep_quality.id_for_label }}" class="form-label">
+                                    Sleep Quality
+                                </label>
+                                {{ form.sleep_quality }}
+                                {% if form.sleep_quality.errors %}
+                                    <div class="text-danger">{{ form.sleep_quality.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Additional Information -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-chat-square-text"></i> Additional Information
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="{{ form.additional_symptoms.id_for_label }}" class="form-label">
+                                    Any new symptoms or concerns?
+                                </label>
+                                {{ form.additional_symptoms }}
+                                {% if form.additional_symptoms.errors %}
+                                    <div class="text-danger">{{ form.additional_symptoms.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.overall_satisfaction.id_for_label }}" class="form-label">
+                                    Overall satisfaction with treatment?
+                                </label>
+                                {{ form.overall_satisfaction }}
+                                {% if form.overall_satisfaction.errors %}
+                                    <div class="text-danger">{{ form.overall_satisfaction.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Doctor Notes -->
+                    <div class="mb-4">
+                        <h6 class="text-hospital-primary">
+                            <i class="bi bi-journal-medical"></i> Doctor Notes
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="{{ form.doctor_notes.id_for_label }}" class="form-label">
+                                    Clinical observations and notes:
+                                </label>
+                                {{ form.doctor_notes }}
+                                {% if form.doctor_notes.errors %}
+                                    <div class="text-danger">{{ form.doctor_notes.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'patient_dashboard' patient.id %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                                </a>
+                                <button type="submit" class="btn btn-hospital-primary">
+                                    <i class="bi bi-check-circle"></i> Complete Assessment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assessment Guidelines -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Assessment Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Symptom Improvement Scale:</h6>
+                        <ul class="small">
+                            <li><strong>Significant:</strong> Major improvement, symptoms mostly resolved</li>
+                            <li><strong>Moderate:</strong> Noticeable improvement, symptoms better</li>
+                            <li><strong>Minimal:</strong> Slight improvement, some relief</li>
+                            <li><strong>No Change:</strong> Symptoms unchanged</li>
+                            <li><strong>Worsening:</strong> Symptoms getting worse</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Alert Triggers:</h6>
+                        <ul class="small">
+                            <li><strong>Ineffective Medicine:</strong> No improvement or worsening symptoms</li>
+                            <li><strong>Severe Side Effects:</strong> Serious adverse reactions</li>
+                            <li><strong>Poor Adherence:</strong> Fair or poor medication compliance</li>
+                            <li><strong>Resistance:</strong> No improvement despite good adherence</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

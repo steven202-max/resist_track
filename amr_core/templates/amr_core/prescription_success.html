@@ -1,0 +1,165 @@
+{% extends 'amr_core/base.html' %}
+
+{% block title %}Prescription Created - AMR Tracking System{% endblock %}
+{% block page_title %}Prescription Created{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-check-circle"></i> Prescription Created Successfully
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-success" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">✅ Prescription Created!</h5>
+                            <p class="mb-0">The prescription has been successfully created and is ready for the patient.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription Details -->
+                <div class="card mb-4">
+                    <div class="card-header bg-hospital-light-blue">
+                        <h5 class="mb-0 text-hospital-primary">
+                            <i class="bi bi-prescription"></i> Prescription Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Patient:</strong> {{ prescription.patient.name }}</p>
+                                <p><strong>Antibiotic:</strong> {{ prescription.antibiotic.name }}</p>
+                                <p><strong>Diagnosis:</strong> {{ prescription.diagnosis }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Dosage:</strong> {{ prescription.dosage }} {{ prescription.frequency }}</p>
+                                <p><strong>Duration:</strong> {{ prescription.duration }}</p>
+                                <p><strong>Date:</strong> {{ prescription.date_prescribed|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important IDs for Patient -->
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-info-circle"></i> Patient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info" role="alert">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-exclamation-triangle"></i> Important: Give These IDs to the Patient
+                            </h6>
+                            <p class="mb-2">The patient will need these IDs to provide feedback about their treatment:</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-person-badge text-primary display-4 mb-2"></i>
+                                        <h4 class="text-primary">{{ prescription.patient.id }}</h4>
+                                        <p class="mb-0"><strong>Patient ID</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-prescription text-success display-4 mb-2"></i>
+                                        <h4 class="text-success">{{ prescription.id }}</h4>
+                                        <p class="mb-0"><strong>Prescription ID</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6><i class="bi bi-lightbulb text-warning"></i> Instructions for Patient:</h6>
+                            <ol class="text-muted">
+                                <li>Visit: <code>http://127.0.0.1:8000/feedback/</code></li>
+                                <li>Enter Patient ID: <strong>{{ prescription.patient.id }}</strong></li>
+                                <li>Enter Prescription ID: <strong>{{ prescription.id }}</strong></li>
+                                <li>Provide feedback about treatment outcome</li>
+                            </ol>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="mt-4">
+                            <h6><i class="bi bi-printer text-secondary"></i> Quick Actions:</h6>
+                            <div class="btn-group" role="group">
+                                <button onclick="printPrescription()" class="btn btn-outline-primary">
+                                    <i class="bi bi-printer"></i> Print Prescription
+                                </button>
+                                <button onclick="copyToClipboard()" class="btn btn-outline-secondary">
+                                    <i class="bi bi-clipboard"></i> Copy IDs
+                                </button>
+                                <a href="{% url 'patient_feedback' %}" class="btn btn-outline-info">
+                                    <i class="bi bi-chat-dots"></i> Test Patient Feedback
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-hospital-primary">
+                        <i class="bi bi-speedometer2"></i> Back to Dashboard
+                    </a>
+                    <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-outline-hospital-primary ms-2">
+                        <i class="bi bi-plus-circle"></i> Create Another Prescription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printPrescription() {
+    const prescriptionData = `
+PRESCRIPTION RECEIPT
+===================
+Patient: {{ prescription.patient.name }}
+Patient ID: {{ prescription.patient.id }}
+Prescription ID: {{ prescription.id }}
+
+Antibiotic: {{ prescription.antibiotic.name }}
+Diagnosis: {{ prescription.diagnosis }}
+Dosage: {{ prescription.dosage }} {{ prescription.frequency }}
+Duration: {{ prescription.duration }}
+
+Date: {{ prescription.date_prescribed|date:"M d, Y" }}
+Doctor: {{ prescription.doctor_name }}
+
+PATIENT FEEDBACK INSTRUCTIONS:
+=============================
+1. Visit: http://127.0.0.1:8000/feedback/
+2. Enter Patient ID: {{ prescription.patient.id }}
+3. Enter Prescription ID: {{ prescription.id }}
+4. Provide feedback about treatment outcome
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<pre>' + prescriptionData + '</pre>');
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function copyToClipboard() {
+    const text = `Patient ID: {{ prescription.patient.id }}\nPrescription ID: {{ prescription.id }}\n\nFeedback URL: http://127.0.0.1:8000/feedback/`;
+    navigator.clipboard.writeText(text).then(function() {
+        alert('IDs copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}
