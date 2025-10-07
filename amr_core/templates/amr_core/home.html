@@ -1,38 +1,53 @@
 {% extends 'amr_core/base.html' %}
 
 {% block title %}Home - AMR Tracking System{% endblock %}
-{% block page_title %}Dashboard Overview{% endblock %}
+{% block page_title %}AMR Tracking System{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additional home-specific styling */
+    .hero { padding: 4rem 2rem; border-radius: 16px; }
+    .feature-icon { width: 84px; height: 84px; border-radius: 14px; display: inline-flex; align-items:center; justify-content:center; }
+    .cta-large { padding: 0.9rem 2rem; font-size:1.05rem; }
+    @media (min-width: 992px) {
+        .hero { padding: 6rem 4rem; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+{# Use a body class to hide the sidebar for a clean landing page #}
+<script>document.documentElement.classList.add('no-sidebar'); document.body.classList.add('no-sidebar');</script>
+
+<!-- Modern Hero -->
 <div class="row mb-5">
-    <div class="col-lg-12">
-        <div class="card bg-hospital-primary text-white">
-            <div class="card-body p-5 text-center">
+    <div class="col-lg-10 mx-auto">
+        <div class="card bg-hospital-primary text-white hero">
+            <div class="card-body text-center">
                 <h1 class="display-4 fw-bold mb-3">
                     <i class="bi bi-shield-check"></i> AMR Tracking System
                 </h1>
-                <p class="lead mb-4">
-                    Advanced Antimicrobial Resistance monitoring for evidence-based clinical decisions
+                <p class="lead mb-4 px-lg-5">
+                    Intelligent antimicrobial resistance monitoring and smart prescribing tools for clinicians — secure, evidence-driven, and easy to use.
                 </p>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
                     {% if not user.is_authenticated %}
-                        <a href="{% url 'doctor_login' %}" class="btn btn-light btn-lg me-md-2">
-                            <i class="bi bi-box-arrow-in-right"></i> Doctor Login
+                        <a href="{% url 'doctor_login' %}" class="btn btn-light btn-lg cta-large">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Doctor Login
                         </a>
-                        <a href="{% url 'doctor_register' %}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-person-plus"></i> Register
+                        <a href="{% url 'doctor_register' %}" class="btn btn-outline-light btn-lg cta-large">
+                            <i class="bi bi-person-plus me-2"></i> Register
                         </a>
                     {% else %}
-                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-light btn-lg me-md-2">
-                            <i class="bi bi-speedometer2"></i> Doctor Dashboard
+                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-light btn-lg cta-large">
+                            <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
                         </a>
-                        <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-prescription"></i> Prescribe Antibiotic
+                        <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-outline-light btn-lg cta-large">
+                            <i class="bi bi-prescription me-2"></i> Prescribe Antibiotic
                         </a>
                     {% endif %}
-                    <a href="{% url 'patient_feedback' %}" class="btn btn-outline-light btn-lg">
-                        <i class="bi bi-chat-dots"></i> Patient Feedback
+                    <a href="{% url 'patient_feedback' %}" class="btn btn-outline-light btn-lg cta-large">
+                        <i class="bi bi-chat-dots me-2"></i> Patient Feedback
                     </a>
                 </div>
             </div>
@@ -40,167 +55,68 @@
     </div>
 </div>
 
-<!-- Statistics Cards -->
+<!-- Key Stats (centered) -->
 <div class="row mb-5">
-    <div class="col-md-3 mb-4">
-        <div class="stats-card">
-            <div class="d-flex align-items-center">
-                <div class="flex-shrink-0">
-                    <div class="bg-hospital-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-people text-white fs-4"></i>
-                    </div>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h3 class="mb-0 text-hospital-primary">{{ total_patients }}</h3>
-                    <p class="text-muted mb-0">Total Patients</p>
-                </div>
+    <div class="col-lg-10 mx-auto">
+        <div class="d-flex gap-4 flex-column flex-md-row justify-content-between">
+            <div class="stats-card text-center flex-fill">
+                <div class="mb-2"><i class="bi bi-people fs-2 text-hospital-primary"></i></div>
+                <h3 class="mb-0">{{ total_patients }}</h3>
+                <p class="text-muted small">Total Patients</p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-4">
-        <div class="stats-card success">
-            <div class="d-flex align-items-center">
-                <div class="flex-shrink-0">
-                    <div class="bg-hospital-success rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-capsule text-white fs-4"></i>
-                    </div>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h3 class="mb-0 text-success">{{ total_antibiotics }}</h3>
-                    <p class="text-muted mb-0">Antibiotics</p>
-                </div>
+            <div class="stats-card text-center flex-fill">
+                <div class="mb-2"><i class="bi bi-capsule fs-2 text-success"></i></div>
+                <h3 class="mb-0">{{ total_antibiotics }}</h3>
+                <p class="text-muted small">Antibiotics</p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-4">
-        <div class="stats-card warning">
-            <div class="d-flex align-items-center">
-                <div class="flex-shrink-0">
-                    <div class="bg-hospital-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-prescription text-white fs-4"></i>
-                    </div>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h3 class="mb-0 text-warning">{{ active_prescriptions }}</h3>
-                    <p class="text-muted mb-0">Active Prescriptions</p>
-                </div>
+            <div class="stats-card text-center flex-fill">
+                <div class="mb-2"><i class="bi bi-prescription fs-2 text-warning"></i></div>
+                <h3 class="mb-0">{{ active_prescriptions }}</h3>
+                <p class="text-muted small">Active Prescriptions</p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-4">
-        <div class="stats-card danger">
-            <div class="d-flex align-items-center">
-                <div class="flex-shrink-0">
-                    <div class="bg-hospital-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-exclamation-triangle text-white fs-4"></i>
-                    </div>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h3 class="mb-0 text-danger">{{ resistance_records }}</h3>
-                    <p class="text-muted mb-0">Resistance Records</p>
-                </div>
+            <div class="stats-card text-center flex-fill">
+                <div class="mb-2"><i class="bi bi-exclamation-triangle fs-2 text-danger"></i></div>
+                <h3 class="mb-0">{{ resistance_records }}</h3>
+                <p class="text-muted small">Resistance Records</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Features Section -->
+<!-- Features Grid -->
 <div class="row mb-5">
-    <div class="col-lg-12">
-        <h2 class="text-center mb-5 text-hospital-primary">
-            <i class="bi bi-shield-check"></i> System Features
-        </h2>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 text-center">
-            <div class="card-body p-4">
-                <div class="bg-hospital-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-shield-exclamation text-white display-6"></i>
-                </div>
-                <h5 class="card-title">Real-time Resistance Detection</h5>
-                <p class="card-text text-muted">
-                    Advanced algorithms automatically check patient resistance history before prescribing antibiotics, 
-                    providing instant alerts for known resistance patterns.
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 text-center">
-            <div class="card-body p-4">
-                <div class="bg-hospital-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-arrow-repeat text-white display-6"></i>
-                </div>
-                <h5 class="card-title">Smart Alternative Suggestions</h5>
-                <p class="card-text text-muted">
-                    AI-powered recommendations for alternative antibiotics based on bacteria targeting, 
-                    patient resistance history, and effectiveness data.
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 text-center">
-            <div class="card-body p-4">
-                <div class="bg-hospital-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-graph-up text-white display-6"></i>
-                </div>
-                <h5 class="card-title">Comprehensive Analytics</h5>
-                <p class="card-text text-muted">
-                    Monitor antibiotic effectiveness through patient feedback, generate detailed reports, 
-                    and track resistance patterns with interactive visualizations.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Workflow Section -->
-<div class="row mb-5">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header bg-hospital-light-blue">
-                <h4 class="mb-0 text-hospital-primary">
-                    <i class="bi bi-diagram-3"></i> Clinical Workflow
-                </h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 text-center mb-4">
-                        <div class="bg-hospital-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <span class="text-white fs-3 fw-bold">1</span>
+    <div class="col-lg-10 mx-auto">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-hospital-danger mb-3">
+                            <i class="bi bi-shield-exclamation text-white fs-2"></i>
                         </div>
-                        <h6 class="text-hospital-primary">Patient Registration</h6>
-                        <p class="text-muted small">
-                            Register patient information including medical history and known allergies
-                        </p>
+                        <h5>Real-time Resistance Detection</h5>
+                        <p class="text-muted small">Checks patient resistance history and alerts clinicians during prescribing.</p>
                     </div>
-                    <div class="col-md-3 text-center mb-4">
-                        <div class="bg-hospital-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <span class="text-white fs-3 fw-bold">2</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-hospital-success mb-3">
+                            <i class="bi bi-arrow-repeat text-white fs-2"></i>
                         </div>
-                        <h6 class="text-success">Resistance Check</h6>
-                        <p class="text-muted small">
-                            System automatically checks for known resistance patterns in patient history
-                        </p>
+                        <h5>Smart Alternatives</h5>
+                        <p class="text-muted small">Suggests alternatives based on bacteria targeting and patient history.</p>
                     </div>
-                    <div class="col-md-3 text-center mb-4">
-                        <div class="bg-hospital-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <span class="text-white fs-3 fw-bold">3</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-hospital-primary mb-3">
+                            <i class="bi bi-graph-up text-white fs-2"></i>
                         </div>
-                        <h6 class="text-warning">Smart Prescribing</h6>
-                        <p class="text-muted small">
-                            Prescribe appropriate antibiotic or receive alternative recommendations
-                        </p>
-                    </div>
-                    <div class="col-md-3 text-center mb-4">
-                        <div class="bg-hospital-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                            <span class="text-white fs-3 fw-bold">4</span>
-                        </div>
-                        <h6 class="text-info">Outcome Monitoring</h6>
-                        <p class="text-muted small">
-                            Track patient feedback and monitor treatment effectiveness
-                        </p>
+                        <h5>Outcome Analytics</h5>
+                        <p class="text-muted small">Monitor effectiveness using patient feedback and interactive reports.</p>
                     </div>
                 </div>
             </div>
@@ -208,82 +124,18 @@
     </div>
 </div>
 
-<!-- Quick Actions -->
-{% if user.is_authenticated %}
+<!-- CTA strip -->
 <div class="row mb-5">
-    <div class="col-lg-12">
-        <h3 class="text-center mb-4 text-hospital-primary">
-            <i class="bi bi-lightning"></i> Quick Actions
-        </h3>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'add_patient' %}" class="btn btn-hospital-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
-            <i class="bi bi-person-plus display-4 mb-3"></i>
-            <span class="fs-5">Add Patient</span>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'prescribe_antibiotic' %}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
-            <i class="bi bi-prescription display-4 mb-3"></i>
-            <span class="fs-5">Prescribe</span>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'reports' %}" class="btn btn-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
-            <i class="bi bi-graph-up display-4 mb-3"></i>
-            <span class="fs-5">View Reports</span>
-        </a>
-    </div>
-    <div class="col-md-3 mb-3">
-        <a href="{% url 'patient_list' %}" class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
-            <i class="bi bi-people display-4 mb-3"></i>
-            <span class="fs-5">All Patients</span>
-        </a>
-    </div>
-</div>
-{% endif %}
-
-<!-- Demo Information -->
-{% if not user.is_authenticated %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card border-hospital-primary">
-            <div class="card-header bg-hospital-light-blue">
-                <h5 class="mb-0 text-hospital-primary">
-                    <i class="bi bi-info-circle"></i> Demo Access
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="bi bi-person-badge text-hospital-primary"></i> Demo Doctor Account</h6>
-                        <p class="mb-2">
-                            <strong>Username:</strong> demo_doctor<br>
-                            <strong>Password:</strong> demo123
-                        </p>
-                        <p class="small text-muted">
-                            Use these credentials to explore all system features and functionality.
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6><i class="bi bi-lightbulb text-warning"></i> Getting Started</h6>
-                        <ul class="small text-muted">
-                            <li>Login with demo credentials</li>
-                            <li>Explore the doctor dashboard</li>
-                            <li>Try prescribing antibiotics</li>
-                            <li>Check patient resistance records</li>
-                            <li>View analytics and reports</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="text-center mt-3">
-                    <a href="{% url 'doctor_login' %}" class="btn btn-hospital-primary">
-                        <i class="bi bi-box-arrow-in-right"></i> Access Demo
-                    </a>
-                </div>
+    <div class="col-lg-10 mx-auto">
+        <div class="card bg-white p-4 text-center">
+            <h4 class="mb-2">Ready to improve prescribing outcomes?</h4>
+            <p class="text-muted mb-3">Create a free demo account and explore the dashboard, prescribing workflow, and reports.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'doctor_register' %}" class="btn btn-hospital-primary">Create Demo Account</a>
+                <a href="{% url 'patient_feedback' %}" class="btn btn-outline-hospital-primary">Give Feedback (Patient)</a>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
+
 {% endblock %}

@@ -343,6 +343,20 @@
             }
         }
 
+        /* No-sidebar mode (used by home page for a clean modern landing) */
+        body.no-sidebar .sidebar {
+            display: none;
+        }
+
+        body.no-sidebar .main-content {
+            margin-left: 0;
+        }
+
+        body.no-sidebar .topbar {
+            box-shadow: none;
+            border-bottom: none;
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
