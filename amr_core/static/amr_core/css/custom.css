@@ -1,0 +1,24 @@
+/* Custom minimal styles for quick refactor
+   - Colors and spacing aligned with base.css variables
+   - Overrides for no-sidebar mode
+*/
+:root {
+    --hospital-blue: #2c5aa0;
+}
+
+body.no-sidebar .sidebar {
+    display: none;
+}
+
+body.no-sidebar .main-content {
+    margin-left: 0 !important;
+}
+
+/* Small utility */
+.text-hospital-primary { color: var(--hospital-blue) !important; }
+
+.card { overflow: visible; }
+
+@media (max-width: 768px) {
+    .content-area { padding: 1rem; }
+}

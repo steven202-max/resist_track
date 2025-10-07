@@ -1,0 +1,104 @@
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="{% url 'home' %}" class="sidebar-brand">
+            <i class="bi bi-shield-check"></i>
+            <span>AMR Tracker</span>
+        </a>
+    </div>
+    
+    <div class="sidebar-nav">
+        <!-- Main Navigation -->
+        <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="{% url 'home' %}" class="nav-link">
+                <i class="bi bi-house"></i>
+                <span>Dashboard</span>
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'doctor_dashboard' %}" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Doctor Panel</span>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <!-- Patient Management -->
+        <div class="nav-section">
+            <div class="nav-section-title">Patients</div>
+            <a href="{% url 'patient_list' %}" class="nav-link">
+                <i class="bi bi-people"></i>
+                <span>All Patients</span>
+            </a>
+            <a href="{% url 'add_patient' %}" class="nav-link">
+                <i class="bi bi-person-plus"></i>
+                <span>Add Patient</span>
+            </a>
+        </div>
+
+        <!-- Prescriptions -->
+        <div class="nav-section">
+            <div class="nav-section-title">Prescriptions</div>
+            <a href="{% url 'prescribe_antibiotic' %}" class="nav-link">
+                <i class="bi bi-prescription"></i>
+                <span>Prescribe</span>
+            </a>
+            <a href="{% url 'resistance_records' %}" class="nav-link">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span>Resistance Records</span>
+            </a>
+        </div>
+
+        <!-- Monitoring & Assessment -->
+        <div class="nav-section">
+            <div class="nav-section-title">Monitoring</div>
+            <a href="{% url 'monitoring_analytics' %}" class="nav-link">
+                <i class="bi bi-graph-up"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="{% url 'medicine_alerts' %}" class="nav-link">
+                <i class="bi bi-bell"></i>
+                <span>Alerts</span>
+            </a>
+        </div>
+
+        <!-- Reports -->
+        <div class="nav-section">
+            <div class="nav-section-title">Analytics</div>
+            <a href="{% url 'reports' %}" class="nav-link">
+                <i class="bi bi-graph-up"></i>
+                <span>Reports</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Patient Feedback -->
+        <div class="nav-section">
+            <div class="nav-section-title">Patient Services</div>
+            <a href="{% url 'patient_feedback' %}" class="nav-link">
+                <i class="bi bi-chat-dots"></i>
+                <span>Patient Feedback</span>
+            </a>
+        </div>
+
+        <!-- Authentication -->
+        <div class="nav-section">
+            <div class="nav-section-title">Account</div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            {% else %}
+                <a href="{% url 'doctor_login' %}" class="nav-link">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Doctor Login</span>
+                </a>
+                <a href="{% url 'doctor_register' %}" class="nav-link">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Register</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
